@@ -1,26 +1,31 @@
 {
   "name": "personal-whatsapp-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
-  "description": "Minimal MCP server for sending WhatsApp messages through a linked personal WhatsApp account using Baileys.",
+  "description": "Minimal remote MCP server for sending WhatsApp messages through a linked personal WhatsApp account using Baileys.",
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "start:stdio": "MCP_TRANSPORT=stdio tsx src/index.ts",
     "dev": "tsx src/index.ts"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "@modelcontextprotocol/express": "latest",
     "@modelcontextprotocol/server": "latest",
+    "@modelcontextprotocol/node": "latest",
     "@whiskeysockets/baileys": "latest",
+    "express": "latest",
     "pino": "latest",
     "qrcode-terminal": "latest",
-    "zod": "latest"
+    "zod": "zod/v4"
   },
   "devDependencies": {
     "tsx": "latest",
     "typescript": "latest",
+    "@types/express": "latest",
     "@types/node": "latest",
     "@types/qrcode-terminal": "latest"
   }
