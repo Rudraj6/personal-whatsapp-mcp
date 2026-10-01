@@ -20,7 +20,7 @@
     "express": "latest",
     "pino": "latest",
     "qrcode-terminal": "latest",
-    "zod": "zod/v4"
+    "zod": "latest"
   },
   "devDependencies": {
     "tsx": "latest",
