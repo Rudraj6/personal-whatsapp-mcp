@@ -1,73 +1,94 @@
-# Personal WhatsApp MCP
+# personal-whatsapp-mcp
 
-Minimal MCP server that lets an MCP-compatible AI client send WhatsApp text messages through a personally linked WhatsApp account using Baileys.
+Minimal remote MCP server for sending WhatsApp messages through a linked personal WhatsApp account using Baileys.
 
-> **Important:** This project uses the unofficial WhatsApp Web protocol implementation Baileys. It is not affiliated with or endorsed by WhatsApp/Meta. Use it only for personal testing and low-volume, consensual messaging. Account restrictions or loss of access are possible.
+## Current architecture
 
-## Current scope
+```text
+Claude / MCP client
+        |
+        | Streamable HTTP
+        v
+personal-whatsapp-mcp
+        |
+        v
+     Baileys
+        |
+        v
+ WhatsApp account
+```
 
-- QR-code login through WhatsApp Linked Devices
-- Persistent Baileys authentication state
-- `send_message` MCP tool
-- `whatsapp_status` MCP tool
-- Automatic reconnect after a temporary connection loss
-- Minimal Node.js + TypeScript implementation
+## Local development
 
-## Requirements
-
-- Node.js 20+
-- A WhatsApp account that can link another device
-- An MCP-compatible local host
-
-## Install
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-## Run
+Run the remote HTTP version:
 
 ```bash
 npm start
 ```
 
-On the first run, a QR code is printed in the terminal. On your phone open WhatsApp → Settings → Linked Devices → Link a device, then scan the QR code.
+Health check:
 
-The authentication state is stored in `./auth_info/` and should never be committed to GitHub.
+```text
+http://localhost:3000/health
+```
 
-## MCP tools
+MCP endpoint:
+
+```text
+http://localhost:3000/mcp
+```
+
+For local MCP Inspector testing, use stdio instead:
+
+```bash
+npm run start:stdio
+```
+
+## WhatsApp authentication
+
+The first run displays a QR code. On the WhatsApp phone:
+
+**Settings → Linked devices → Link a device → Scan the QR code**
+
+Authentication state is stored in `WHATSAPP_AUTH_DIR`. Keep this directory on persistent storage in production.
+
+## Environment variables
+
+```env
+PORT=3000
+WHATSAPP_AUTH_DIR=./local-data/whatsapp
+MCP_PATH=/mcp
+MCP_TRANSPORT=http
+LOG_LEVEL=silent
+```
+
+For a public deployment, set `MCP_PATH` to a long random path rather than using the default `/mcp`. This is only a lightweight access barrier; a proper OAuth layer should be added before treating the server as production-grade.
+
+## Exposed MCP tools
 
 ### `send_message`
 
-Input:
-
-```json
-{
-  "phoneNumber": "919876543210",
-  "message": "Hello from my MCP server"
-}
+```text
+phoneNumber: international number without +
+message: text to send
 ```
 
 ### `whatsapp_status`
 
-Returns whether the WhatsApp socket is currently connected.
+Returns whether the Baileys WhatsApp session is currently connected.
 
-## Architecture
+## Cloud deployment requirement
 
-```text
-AI / MCP Host
-     |
-     | MCP stdio
-     v
-Personal WhatsApp MCP
-     |
-     | Baileys WebSocket connection
-     v
-WhatsApp linked device
-```
+The WhatsApp authentication directory must be on persistent storage. Do not deploy this to a platform where the filesystem is erased on restart or sleep.
 
-The MCP server exposes actions; Baileys handles the WhatsApp Web connection and message transport.
+The intended free deployment target is an always-on VM such as Oracle Cloud Infrastructure Always Free. Render's free web services are not suitable for this workload because they spin down after 15 minutes of inactivity and lose local filesystem changes on restart/redeploy. Railway's current free tier provides only $1/month of usage after its trial, so it is not a reliable always-free choice for an always-running WhatsApp connection.
 
-## Next step
+## Important
 
-Connect this local MCP server to the MCP host you want to use, then test `whatsapp_status` and `send_message` with a non-critical recipient before using it in a real workflow.
+Baileys is an unofficial WhatsApp Web protocol implementation. This project is for personal experimentation and automation. WhatsApp/Meta may restrict or suspend accounts using unofficial automation. Do not use this project for spam, bulk messaging, or attempts to evade platform enforcement.
