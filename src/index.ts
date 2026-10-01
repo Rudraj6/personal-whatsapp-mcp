@@ -5,7 +5,7 @@ import * as z from 'zod/v4'
 import { McpServer } from '@modelcontextprotocol/server'
 import { serveStdio } from '@modelcontextprotocol/server/stdio'
 
-const AUTH_DIR = process.env.WHATSAPP_AUTH_DIR ?? './auth_info'
+const AUTH_DIR = process.env.WHATSAPP_AUTH_DIR ?? './local-data/whatsapp'
 
 const logger = P({
   level: process.env.LOG_LEVEL ?? 'silent',
@@ -62,7 +62,7 @@ async function startWhatsApp(): Promise<void> {
         const loggedOut = statusCode === DisconnectReason.loggedOut
 
         if (loggedOut) {
-          console.error('WhatsApp logged out. Delete auth_info and restart to pair again.')
+          console.error('WhatsApp logged out. Delete local-data/whatsapp and restart to pair again.')
           return
         }
 
