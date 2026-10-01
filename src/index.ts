@@ -1,4 +1,4 @@
-import { DisconnectReason, makeCacheableSignalKeyStore, makeWASocket, useMultiFileAuthState } from '@whiskeysockets/baileys'
+import { DisconnectReason, fetchLatestWaWebVersion, makeCacheableSignalKeyStore, makeWASocket, useMultiFileAuthState } from '@whiskeysockets/baileys'
 import P from 'pino'
 import qrcode from 'qrcode-terminal'
 import * as z from 'zod/v4'
@@ -29,8 +29,11 @@ async function startWhatsApp(): Promise<void> {
 
   try {
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR)
+    const { version } = await fetchLatestWaWebVersion()
 
     sock = makeWASocket({
+      version,
+      browser: ['Chrome', 'Chrome', '1.0.0'],
       auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, logger),
@@ -66,7 +69,7 @@ async function startWhatsApp(): Promise<void> {
           return
         }
 
-        console.error('WhatsApp connection closed. Reconnecting...')
+        console.error(`WhatsApp connection closed (${statusCode ?? 'unknown'}). Reconnecting...`)
         setTimeout(() => void startWhatsApp(), 3000)
       }
     })
